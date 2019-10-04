@@ -32,7 +32,7 @@
         </menus>
       </MenuBar>
       <Button layoutX="14.0" layoutY="46.0" mnemonicParsing="false" text="View ECG" />
-      <Label fx:id="label" layoutX="14.0" layoutY="458.0" text="Status:" />
+      <Label fx:id="status" layoutX="14.0" layoutY="458.0" text="Status:" />
       <ScrollBar layoutX="42.0" layoutY="427.0" prefHeight="17.0" prefWidth="576.0" />
       <Button layoutX="117.0" layoutY="182.0" mnemonicParsing="false" text="IRR Filter" />
       <Button layoutX="21.0" layoutY="182.0" mnemonicParsing="false" text="FIR Filter" />

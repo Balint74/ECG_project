@@ -23,7 +23,7 @@ import javafx.stage.FileChooser;
 public class FXMLDocumentController implements Initializable {
     
     @FXML
-    private Label label;
+    private Label status;
     
     @FXML
     private Label FileName;
@@ -39,9 +39,9 @@ public class FXMLDocumentController implements Initializable {
         
         if (SelectedFile != null) {
             FileName.setText("File name: " + SelectedFile.getName());
-            label.setText("Status: File loaded");
+            status.setText("Status: File loaded");
         }else{
-            label.setText("Status: Wrong File");
+            status.setText("Status: Wrong File");
               }
             
     }
