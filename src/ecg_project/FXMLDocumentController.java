@@ -31,6 +31,8 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private MenuItem Open;
     
+    @FXML
+    private Label FilePath;
 
     
     public void LoadFile(ActionEvent event){
@@ -39,6 +41,7 @@ public class FXMLDocumentController implements Initializable {
         
         if (SelectedFile != null) {
             FileName.setText("File name: " + SelectedFile.getName());
+            FilePath.setText("File path: " + SelectedFile.getAbsolutePath());
             status.setText("Status: File loaded");
         }else{
             status.setText("Status: Wrong File");
