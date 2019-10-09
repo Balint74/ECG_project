@@ -5,6 +5,13 @@
  */
 package ecg_project;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -20,18 +27,23 @@ public class ECG_Project extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
-        
+        stage.setTitle("ECG");
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
         stage.show();
+        
     }
+    
 
     /**
-     * @param args the command line arguments
+     *
+     * @param args
      */
+    
     public static void main(String[] args) {
         launch(args);
     }
     
+
 }
