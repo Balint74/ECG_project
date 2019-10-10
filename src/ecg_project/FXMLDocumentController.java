@@ -22,16 +22,18 @@ import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 
 /**
  *
  * @author feherbalint
  */
+
 public class FXMLDocumentController implements Initializable {
+    private Double upperBound;
     
     @FXML
     private Label status;
@@ -48,7 +50,6 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private LineChart<Number, Number> lineChart;
     
-    
     @FXML
     private NumberAxis xAxis;
     
@@ -58,8 +59,10 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private Slider slider;
     
-
-   
+    @FXML
+    private Button zoomButton;
+    
+    
     public void loadFile(ActionEvent event){
         FileChooser fc = new FileChooser();
         File SelectedFile = fc.showOpenDialog(null);
@@ -72,8 +75,7 @@ public class FXMLDocumentController implements Initializable {
             status.setText("Status: Wrong File");
               }
             
-        
-        
+                
         File file = new File(SelectedFile.getAbsolutePath());
         List<Double> array = new ArrayList<Double>();
         int sorokszama = 0;
@@ -105,9 +107,7 @@ public class FXMLDocumentController implements Initializable {
             Logger.getLogger(ECG_Project.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("I/O catch");
         }
-        
-
-        
+               
         XYChart.Series series = new XYChart.Series();
 
         for(int i = 0; i < 10000;i++){
@@ -116,13 +116,16 @@ public class FXMLDocumentController implements Initializable {
         }
         lineChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke-width: 1px;");
-        
+               
+        upperBound = xAxis.getUpperBound();
+        zoomButton.setDisable(false);
     }
 
     public void reset(ActionEvent event){
         lineChart.getData().clear();
         xAxis.setAutoRanging(true);
         yAxis.setAutoRanging(true);
+        zoomButton.setDisable(true);
         status.setText("Status: Graph reset");
         FileName.setText("File name:");
         FilePath.setText("File path:");
@@ -134,16 +137,25 @@ public class FXMLDocumentController implements Initializable {
     }
     
     public void zoom(ActionEvent event){
-        
+
+
         xAxis.setAutoRanging(false);
         yAxis.setAutoRanging(false);
-        xAxis.setUpperBound(1000*(slider.getValue()/100));
+        xAxis.setUpperBound(upperBound*(slider.getValue()/100));
         yAxis.setUpperBound(600);
     }
+
+    public NumberAxis getxAxis() {
+        return xAxis;
+    }
+
+    public NumberAxis getyAxis() {
+        return yAxis;
+    }
+    
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
     }    
     
     
