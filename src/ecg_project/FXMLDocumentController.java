@@ -19,11 +19,12 @@ import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 
 /**
@@ -46,9 +47,19 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private LineChart<Number, Number> lineChart;
-
-
     
+    
+    @FXML
+    private NumberAxis xAxis;
+    
+    @FXML
+    private NumberAxis yAxis;
+    
+    @FXML
+    private Slider slider;
+    
+
+   
     public void loadFile(ActionEvent event){
         FileChooser fc = new FileChooser();
         File SelectedFile = fc.showOpenDialog(null);
@@ -89,13 +100,14 @@ public class FXMLDocumentController implements Initializable {
                      
         } catch (FileNotFoundException ex) {
             Logger.getLogger(ECG_Project.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("catch");
+            System.out.println("File catch");
         } catch (IOException ex) {
             Logger.getLogger(ECG_Project.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("catch");
+            System.out.println("I/O catch");
         }
         
 
+        
         XYChart.Series series = new XYChart.Series();
 
         for(int i = 0; i < 10000;i++){
@@ -104,12 +116,29 @@ public class FXMLDocumentController implements Initializable {
         }
         lineChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke-width: 1px;");
-
+        
     }
 
+    public void reset(ActionEvent event){
+        lineChart.getData().clear();
+        xAxis.setAutoRanging(true);
+        yAxis.setAutoRanging(true);
+        status.setText("Status: Graph reset");
+        FileName.setText("File name:");
+        FilePath.setText("File path:");
+        FileLength.setText("File length:");
+    }
     
     public void exit(ActionEvent event){
         System.exit(0);
+    }
+    
+    public void zoom(ActionEvent event){
+        
+        xAxis.setAutoRanging(false);
+        yAxis.setAutoRanging(false);
+        xAxis.setUpperBound(1000*(slider.getValue()/100));
+        yAxis.setUpperBound(600);
     }
     
     @Override
