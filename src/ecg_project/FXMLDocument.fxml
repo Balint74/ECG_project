@@ -44,10 +44,10 @@
          <children>
             <LineChart fx:id="lineChart" animated="false" axisSortingPolicy="NONE" createSymbols="false" legendVisible="false" prefHeight="219.0" prefWidth="630.0" title="ECG">
               <xAxis>
-                <NumberAxis side="BOTTOM" tickUnit="100.0" upperBound="1000.0" fx:id="xAxis" />
+                <NumberAxis label="Time [s]" side="BOTTOM" snapToPixel="false" tickUnit="100.0" upperBound="1000.0" fx:id="xAxis" />
               </xAxis>
               <yAxis>
-                <NumberAxis fx:id="yAxis" animated="false" lowerBound="-80.0" minorTickLength="1.0" prefWidth="28.0" side="LEFT" tickMarkVisible="false" tickUnit="100.0" upperBound="400.0">
+                <NumberAxis fx:id="yAxis" animated="false" label="Amplitude [uV]" lowerBound="-80.0" minorTickLength="1.0" prefWidth="50.0" side="LEFT" tickMarkVisible="false" tickUnit="100.0" upperBound="400.0">
                      <tickLabelFont>
                         <Font size="11.0" />
                      </tickLabelFont></NumberAxis>

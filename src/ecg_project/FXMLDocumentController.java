@@ -65,6 +65,8 @@ public class FXMLDocumentController implements Initializable {
     
     public void loadFile(ActionEvent event){
         FileChooser fc = new FileChooser();
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Text Files", "*.txt");
+        fc.getExtensionFilters().add(extFilter);
         File SelectedFile = fc.showOpenDialog(null);
         
         if (SelectedFile != null) {
@@ -109,15 +111,22 @@ public class FXMLDocumentController implements Initializable {
         }
                
         XYChart.Series series = new XYChart.Series();
+        
+        double frekvencia = 256.0;
+        int counter = 0;
+        for(int i = 0; i < sorokszama-1;i = i+4){
 
-        for(int i = 0; i < 10000;i++){
-            
-            series.getData().add(new XYChart.Data(i/10,array.get(i)));
+            series.getData().add(new XYChart.Data(counter/frekvencia,array.get(i)));
+            counter++;
         }
+        
+        
+        
         lineChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke-width: 1px;");
-               
-        upperBound = xAxis.getUpperBound();
+        
+        
+        upperBound = Double.valueOf(sorokszama)/1024;
         zoomButton.setDisable(false);
     }
 
@@ -138,20 +147,12 @@ public class FXMLDocumentController implements Initializable {
     
     public void zoom(ActionEvent event){
 
-
         xAxis.setAutoRanging(false);
         yAxis.setAutoRanging(false);
         xAxis.setUpperBound(upperBound*(slider.getValue()/100));
         yAxis.setUpperBound(600);
     }
 
-    public NumberAxis getxAxis() {
-        return xAxis;
-    }
-
-    public NumberAxis getyAxis() {
-        return yAxis;
-    }
     
     
     @Override
