@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,6 +26,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Slider;
 import javafx.stage.FileChooser;
 
@@ -61,6 +64,10 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private Button zoomButton;
+    
+    @FXML
+    private ScrollBar scrollBar;
+    
     
     
     public void loadFile(ActionEvent event){
@@ -119,9 +126,7 @@ public class FXMLDocumentController implements Initializable {
             series.getData().add(new XYChart.Data(counter/frekvencia,array.get(i)));
             counter++;
         }
-        
-        
-        
+                       
         lineChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke-width: 1px;");
         
@@ -152,11 +157,33 @@ public class FXMLDocumentController implements Initializable {
         xAxis.setUpperBound(upperBound*(slider.getValue()/100));
         yAxis.setUpperBound(600);
     }
+    
+    public void scroll(){
+        
+             scrollBar.valueProperty().addListener(new ChangeListener<Number>() {
+             public void changed(ObservableValue<? extends Number> ov,
+             Number old_value, Number new_value) {
+                 
+                 
+                 if (new_value.doubleValue() < old_value.doubleValue()){
+                     xAxis.setUpperBound(xAxis.getUpperBound() - new_value.doubleValue());
+                     xAxis.setLowerBound(xAxis.getLowerBound() - new_value.doubleValue());
+                 }
+                 else{
+                     xAxis.setUpperBound(xAxis.getUpperBound() + new_value.doubleValue());
+                     xAxis.setLowerBound(xAxis.getLowerBound() + new_value.doubleValue());
+                 }
+                    
+            }
+        });
+                
+    }
+    
+    
 
-    
-    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        scroll();
     }    
     
     
