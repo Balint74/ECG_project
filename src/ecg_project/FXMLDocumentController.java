@@ -68,8 +68,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private ScrollBar scrollBar;
     
-    
-    
+      
     public void loadFile(ActionEvent event){
         FileChooser fc = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Text Files", "*.txt");
@@ -87,24 +86,22 @@ public class FXMLDocumentController implements Initializable {
                 
         File file = new File(SelectedFile.getAbsolutePath());
         List<Double> array = new ArrayList<Double>();
-        int sorokszama = 0;
+        int numOfLines = 0;
         
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
             String sor;
 
-
             
             while ((sor = br.readLine()) != null) { 
-                Double db = Double.parseDouble(sor);
+                double db = Double.parseDouble(sor);
                 array.add(db);
                 //System.out.println(db);
-                sorokszama = sorokszama + 1;
-                
+                numOfLines = numOfLines + 1;               
             }
             
-             System.out.println("sorokszama: " + sorokszama);
-             FileLength.setText("File length: " + sorokszama);
+             System.out.println("sorokszama: " + numOfLines);
+             FileLength.setText("File length: " + numOfLines);
              
              br.close();
              
@@ -121,7 +118,7 @@ public class FXMLDocumentController implements Initializable {
         
         double frekvencia = 256.0;
         int counter = 0;
-        for(int i = 0; i < sorokszama-1;i = i+4){
+        for(int i = 0; i < numOfLines-1;i = i+4){
 
             series.getData().add(new XYChart.Data(counter/frekvencia,array.get(i)));
             counter++;
@@ -131,7 +128,7 @@ public class FXMLDocumentController implements Initializable {
         series.getNode().setStyle("-fx-stroke-width: 1px;");
         
         
-        upperBound = Double.valueOf(sorokszama)/1024;
+        upperBound = Double.valueOf(numOfLines)/1024;
         zoomButton.setDisable(false);
     }
 
@@ -164,6 +161,8 @@ public class FXMLDocumentController implements Initializable {
              public void changed(ObservableValue<? extends Number> ov,
              Number old_value, Number new_value) {
                  
+                 //System.out.println(xAxis.getUpperBound());
+                 //System.out.println(xAxis.getLowerBound());
                  
                  if (new_value.doubleValue() < old_value.doubleValue()){
                      xAxis.setUpperBound(xAxis.getUpperBound() - new_value.doubleValue());
@@ -173,19 +172,26 @@ public class FXMLDocumentController implements Initializable {
                      xAxis.setUpperBound(xAxis.getUpperBound() + new_value.doubleValue());
                      xAxis.setLowerBound(xAxis.getLowerBound() + new_value.doubleValue());
                  }
-                    
+                                   
             }
         });
                 
     }
     
+    public void leftScroll(ActionEvent e){
+         xAxis.setUpperBound(xAxis.getUpperBound() - 5);
+         xAxis.setLowerBound(xAxis.getLowerBound() - 5);
+    }
     
-
+    public void rightScroll(ActionEvent e){
+         xAxis.setUpperBound(xAxis.getUpperBound() + 5);
+         xAxis.setLowerBound(xAxis.getLowerBound() + 5); 
+    }
+    
+   
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         scroll();
     }    
-    
-    
-    
+          
 }

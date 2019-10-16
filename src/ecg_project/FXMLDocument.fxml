@@ -7,15 +7,16 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollBar?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="480.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ecg_project.FXMLDocumentController">
+<AnchorPane id="AnchorPane" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ecg_project.FXMLDocumentController">
    <children>
-      <MenuBar layoutX="-5.0" prefHeight="29.0" prefWidth="646.0">
+      <MenuBar layoutX="-5.0" prefHeight="29.0" prefWidth="1286.0">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
@@ -26,40 +27,48 @@
         </menus>
       </MenuBar>
       <Button fx:id="reset" layoutX="15.0" layoutY="46.0" mnemonicParsing="false" onAction="#reset" text="Reset ECG" />
-      <Label fx:id="status" layoutX="14.0" layoutY="449.0" text="Status:" />
-      <AnchorPane layoutX="464.0" layoutY="29.0" prefHeight="166.0" prefWidth="162.0">
+      <Label fx:id="status" layoutX="14.0" layoutY="687.0" text="Status:" />
+      <AnchorPane layoutX="865.0" layoutY="46.0" prefHeight="166.0" prefWidth="162.0">
          <children>
             <Label layoutX="52.0" layoutY="14.0" text="ECG Data" />
             <Label layoutX="14.0" layoutY="41.0" text="Interval:" />
          </children>
       </AnchorPane>
-      <AnchorPane layoutX="117.0" layoutY="38.0" prefHeight="136.0" prefWidth="217.0">
+      <AnchorPane layoutX="114.0" layoutY="36.0" prefHeight="136.0" prefWidth="217.0">
          <children>
             <Label fx:id="FileName" layoutY="6.0" text="File name:" />
             <Label fx:id="FilePath" layoutX="1.0" layoutY="23.0" text="File path: " />
             <Label fx:id="FileLength" layoutX="1.0" layoutY="40.0" text="File length:" />
          </children>
       </AnchorPane>
-      <StackPane fx:id="pane" layoutX="-1.0" layoutY="223.0" prefHeight="226.0" prefWidth="646.0">
+      <StackPane fx:id="pane" layoutX="1.0" layoutY="326.0" prefHeight="307.0" prefWidth="1280.0">
          <children>
-            <LineChart fx:id="lineChart" animated="false" axisSortingPolicy="NONE" createSymbols="false" legendVisible="false" prefHeight="219.0" prefWidth="630.0" title="ECG">
+            <LineChart fx:id="lineChart" animated="false" axisSortingPolicy="NONE" createSymbols="false" legendVisible="false" prefHeight="307.0" prefWidth="375.0" title="ECG">
               <xAxis>
-                <NumberAxis label="Time [s]" side="BOTTOM" snapToPixel="false" tickUnit="100.0" upperBound="1000.0" fx:id="xAxis" />
+                <NumberAxis animated="false" label="Time [s]" side="BOTTOM" snapToPixel="false" fx:id="xAxis" />
               </xAxis>
               <yAxis>
-                <NumberAxis fx:id="yAxis" animated="false" label="Amplitude [uV]" lowerBound="-80.0" minorTickLength="1.0" prefWidth="50.0" side="LEFT" tickMarkVisible="false" tickUnit="100.0" upperBound="400.0">
+                <NumberAxis fx:id="yAxis" animated="false" label="Amplitude [uV]" lowerBound="-80.0" minorTickLength="1.0" prefWidth="50.0" side="LEFT" tickMarkVisible="false" tickUnit="50.0" upperBound="400.0">
                      <tickLabelFont>
                         <Font size="11.0" />
-                     </tickLabelFont></NumberAxis>
+                     </tickLabelFont>
+                  </NumberAxis>
               </yAxis>
             </LineChart>
          </children>
       </StackPane>
-      <Pane layoutX="22.0" layoutY="161.0" prefHeight="68.0" prefWidth="242.0">
+      <Pane layoutX="33.0" layoutY="242.0" prefHeight="84.0" prefWidth="278.0">
          <children>
-            <Button fx:id="zoomButton" disable="true" layoutX="2.0" layoutY="6.0" mnemonicParsing="false" onAction="#zoom" text="Zoom" />
-            <Slider fx:id="slider" blockIncrement="20.0" layoutX="76.0" layoutY="12.0" majorTickUnit="40.0" min="10.0" showTickLabels="true" value="100.0" />
+            <Button fx:id="zoomButton" disable="true" layoutX="28.0" layoutY="26.0" mnemonicParsing="false" onAction="#zoom" text="Zoom" />
+            <Slider fx:id="slider" blockIncrement="20.0" layoutX="98.0" layoutY="26.0" majorTickUnit="40.0" min="10.0" showTickLabels="true" value="100.0" />
          </children>
       </Pane>
+      <Pane layoutX="550.0" layoutY="254.0" prefHeight="61.0" prefWidth="182.0">
+         <children>
+            <Button layoutX="57.0" layoutY="29.0" mnemonicParsing="false" onAction="#leftScroll" text="&lt;-" />
+            <Button layoutX="100.0" layoutY="29.0" mnemonicParsing="false" onAction="#rightScroll" text="-&gt;" />
+         </children>
+      </Pane>
+      <ScrollBar fx:id="scrollBar" layoutX="64.0" layoutY="625.0" prefHeight="17.0" prefWidth="1203.0" unitIncrement="10.0" />
    </children>
 </AnchorPane>
