@@ -25,6 +25,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Slider;
@@ -34,164 +35,222 @@ import javafx.stage.FileChooser;
  *
  * @author feherbalint
  */
-
 public class FXMLDocumentController implements Initializable {
+
     private Double upperBound;
-    
+
     @FXML
     private Label status;
-    
+
     @FXML
-    private Label FileName;
-    
+    private Label fileName;
+
     @FXML
-    private Label FilePath;
-    
+    private Label filePath;
+
     @FXML
-    private Label FileLength;
-    
+    private Label fileLength;
+
     @FXML
     private LineChart<Number, Number> lineChart;
-    
+
     @FXML
     private NumberAxis xAxis;
-    
+
     @FXML
     private NumberAxis yAxis;
-    
+
     @FXML
     private Slider slider;
-    
+
     @FXML
     private Button zoomButton;
-    
+
     @FXML
     private ScrollBar scrollBar;
-    
-      
-    public void loadFile(ActionEvent event){
+
+    @FXML
+    private Label interval;
+
+    @FXML
+    private ChoiceBox choiceBox;
+
+    public void loadFile(ActionEvent event) {
         FileChooser fc = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Text Files", "*.txt");
+        FileChooser.ExtensionFilter extFilter2 = new FileChooser.ExtensionFilter("Binary Files", "*.bsp");
         fc.getExtensionFilters().add(extFilter);
+        fc.getExtensionFilters().add(extFilter2);
         File SelectedFile = fc.showOpenDialog(null);
-        
-        if (SelectedFile != null) {
-            FileName.setText("File name: " + SelectedFile.getName());
-            FilePath.setText("File path: " + SelectedFile.getAbsolutePath());
-            status.setText("Status: File loaded");
-        }else{
-            status.setText("Status: Wrong File");
-              }
-            
-                
-        File file = new File(SelectedFile.getAbsolutePath());
-        List<Double> array = new ArrayList<Double>();
-        int numOfLines = 0;
-        
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String sor;
 
-            
-            while ((sor = br.readLine()) != null) { 
-                double db = Double.parseDouble(sor);
-                array.add(db);
-                //System.out.println(db);
-                numOfLines = numOfLines + 1;               
+        String selectedFileName = SelectedFile.getName();
+        String selectedFileExtension = selectedFileName.substring(selectedFileName.lastIndexOf("."), selectedFileName.length());
+
+        if (selectedFileExtension.equals(".txt")) {
+
+            if (SelectedFile != null) {
+                fileName.setText("File name: " + SelectedFile.getName());
+                filePath.setText("File path: " + SelectedFile.getAbsolutePath());
+                status.setText("Status: File loaded");
+            } else {
+                status.setText("Status: Wrong File");
             }
-            
-             System.out.println("sorokszama: " + numOfLines);
-             FileLength.setText("File length: " + numOfLines);
-             
-             br.close();
-             
-                     
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(ECG_Project.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("File catch");
-        } catch (IOException ex) {
-            Logger.getLogger(ECG_Project.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("I/O catch");
-        }
-               
-        XYChart.Series series = new XYChart.Series();
-        
-        double frekvencia = 256.0;
-        int counter = 0;
-        for(int i = 0; i < numOfLines-1;i = i+4){
 
-            series.getData().add(new XYChart.Data(counter/frekvencia,array.get(i)));
-            counter++;
+            File file = new File(SelectedFile.getAbsolutePath());
+            List<Double> array = new ArrayList<Double>();
+            int numOfLines = 0;
+
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                String line;
+
+                while ((line = br.readLine()) != null) {
+                    double db = Double.parseDouble(line);
+                    array.add(db);
+                    //System.out.println(db);
+                    numOfLines = numOfLines + 1;
+                }
+
+                System.out.println("sorokszama: " + numOfLines);
+                fileLength.setText("File length: " + numOfLines);
+
+                br.close();
+
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(ECG_Project.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("File catch");
+            } catch (IOException ex) {
+                Logger.getLogger(ECG_Project.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("I/O catch");
+            }
+
+            XYChart.Series series = new XYChart.Series();
+
+            double frequency = 256.0;
+            int counter = 0;
+            for (int i = 0; i < numOfLines - 1; i = i + 4) {
+
+                series.getData().add(new XYChart.Data(counter / frequency, array.get(i)));
+                counter++;
+            }
+
+            lineChart.getData().add(series);
+            series.getNode().setStyle("-fx-stroke-width: 1px;");
+
+            interval.setText("Interval: " + numOfLines / 4 / frequency + "s");
+
+            upperBound = Double.valueOf(numOfLines) / 1024;
+            zoomButton.setDisable(false);
+
+        } else if (selectedFileExtension.equals(".bsp")) {
+
+            if (SelectedFile != null) {
+                fileName.setText("File name: " + SelectedFile.getName());
+                filePath.setText("File path: " + SelectedFile.getAbsolutePath());
+                status.setText("Status: File loaded");
+            } else {
+                status.setText("Status: Wrong File");
+            }
+
+            BinaryFileLoader fileLoader = new BinaryFileLoader();
+            short[][] Array = new short[64][8000000];
+
+            Array = fileLoader.load(SelectedFile);
+
+            XYChart.Series series = new XYChart.Series();
+            int counter = 0;
+            double frequency = fileLoader.getFreq();
+            for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
+
+                series.getData().add(new XYChart.Data(counter / (frequency / 4), Array[32][i]));
+                counter++;
+            }
+
+            lineChart.getData().add(series);
+            series.getNode().setStyle("-fx-stroke-width: 1px;");
+
+            interval.setText("Interval: " + fileLoader.getNumOfLines() / frequency + "s");
+            fileLength.setText("File length: " + fileLoader.getNumOfLines());
+
+            upperBound = Double.valueOf(fileLoader.getNumOfLines()) / fileLoader.getFreq();
+            System.out.println("Upperbound: " + upperBound);
+            zoomButton.setDisable(false);
+            
+            choiceBox.setVisible(true);
+            for (int i = 0; i < 64; i++) {
+                choiceBox.getItems().add("Csatorna: " + (i + 1));
+            }
+
+            choiceBox.getSelectionModel().selectFirst();
+            
+        } else {
+            status.setText("Status: Wrong File");
         }
-                       
-        lineChart.getData().add(series);
-        series.getNode().setStyle("-fx-stroke-width: 1px;");
-        
-        
-        upperBound = Double.valueOf(numOfLines)/1024;
-        zoomButton.setDisable(false);
+
     }
 
-    public void reset(ActionEvent event){
+    public void reset(ActionEvent event) {
         lineChart.getData().clear();
         xAxis.setAutoRanging(true);
         yAxis.setAutoRanging(true);
         zoomButton.setDisable(true);
         status.setText("Status: Graph reset");
-        FileName.setText("File name:");
-        FilePath.setText("File path:");
-        FileLength.setText("File length:");
+        fileName.setText("File name:");
+        filePath.setText("File path:");
+        fileLength.setText("File length:");
+        interval.setText("Interval: ");
     }
-    
-    public void exit(ActionEvent event){
+
+    public void exit(ActionEvent event) {
         System.exit(0);
     }
-    
-    public void zoom(ActionEvent event){
+
+    public void zoom(ActionEvent event) {
 
         xAxis.setAutoRanging(false);
         yAxis.setAutoRanging(false);
-        xAxis.setUpperBound(upperBound*(slider.getValue()/100));
-        yAxis.setUpperBound(600);
+        xAxis.setUpperBound(upperBound * (slider.getValue() / 100));
+        xAxis.setLowerBound(0);
     }
-    
-    public void scroll(){
-        
-             scrollBar.valueProperty().addListener(new ChangeListener<Number>() {
-             public void changed(ObservableValue<? extends Number> ov,
-             Number old_value, Number new_value) {
-                 
-                 //System.out.println(xAxis.getUpperBound());
-                 //System.out.println(xAxis.getLowerBound());
-                 
-                 if (new_value.doubleValue() < old_value.doubleValue()){
-                     xAxis.setUpperBound(xAxis.getUpperBound() - new_value.doubleValue());
-                     xAxis.setLowerBound(xAxis.getLowerBound() - new_value.doubleValue());
-                 }
-                 else{
-                     xAxis.setUpperBound(xAxis.getUpperBound() + new_value.doubleValue());
-                     xAxis.setLowerBound(xAxis.getLowerBound() + new_value.doubleValue());
-                 }
-                                   
+
+    public void scroll() {
+
+        scrollBar.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                    Number old_value, Number new_value) {
+
+                //System.out.println(xAxis.getUpperBound());
+                //System.out.println(xAxis.getLowerBound());
+                if (new_value.doubleValue() < old_value.doubleValue()) {
+                    xAxis.setUpperBound(xAxis.getUpperBound() - 5);
+                    xAxis.setLowerBound(xAxis.getLowerBound() - 5);
+                } else {
+                    xAxis.setUpperBound(xAxis.getUpperBound() + 5);
+                    xAxis.setLowerBound(xAxis.getLowerBound() + 5);
+                }
             }
         });
-                
+
     }
-    
-    public void leftScroll(ActionEvent e){
-         xAxis.setUpperBound(xAxis.getUpperBound() - 5);
-         xAxis.setLowerBound(xAxis.getLowerBound() - 5);
+
+    public void leftScroll(ActionEvent e) {
+        xAxis.setUpperBound(xAxis.getUpperBound() - 5);
+        xAxis.setLowerBound(xAxis.getLowerBound() - 5);
     }
-    
-    public void rightScroll(ActionEvent e){
-         xAxis.setUpperBound(xAxis.getUpperBound() + 5);
-         xAxis.setLowerBound(xAxis.getLowerBound() + 5); 
+
+    public void rightScroll(ActionEvent e) {
+        xAxis.setUpperBound(xAxis.getUpperBound() + 5);
+        xAxis.setLowerBound(xAxis.getLowerBound() + 5);
     }
-    
-   
+
+    public void toolTip() {
+
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         scroll();
-    }    
-          
+
+    }
+
 }
