@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
@@ -30,6 +31,9 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Slider;
+import javafx.scene.input.MouseDragEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 
@@ -79,12 +83,12 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private Button chanelButton;
-    
+
     private BinaryFileLoader fileLoader;
-    
+
     @FXML
     private CheckBox checkBox;
-    
+
     @FXML
     private Pane paneChanel;
 
@@ -193,7 +197,6 @@ public class FXMLDocumentController implements Initializable {
             }
 
             choiceBox.getSelectionModel().selectFirst();
-            
 
         } else {
             status.setText("Status: Wrong File");
@@ -227,13 +230,12 @@ public class FXMLDocumentController implements Initializable {
     }
 
     public void scroll() {
-
+        /*
         scrollBar.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov,
                     Number old_value, Number new_value) {
 
-                //System.out.println(xAxis.getUpperBound());
-                //System.out.println(xAxis.getLowerBound());
+                
                 if (new_value.doubleValue() < old_value.doubleValue()) {
                     xAxis.setUpperBound(xAxis.getUpperBound() - 5);
                     xAxis.setLowerBound(xAxis.getLowerBound() - 5);
@@ -241,6 +243,28 @@ public class FXMLDocumentController implements Initializable {
                     xAxis.setUpperBound(xAxis.getUpperBound() + 5);
                     xAxis.setLowerBound(xAxis.getLowerBound() + 5);
                 }
+                
+                
+                
+            }
+        });
+         */
+
+            lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent ev) {
+                double scrollFactor = 2.5;
+                double deltaY = ev.getDeltaY();
+
+                if (deltaY < 0) {
+                    scrollFactor = - 2.5;
+                }
+
+
+                xAxis.setUpperBound(xAxis.getUpperBound() + scrollFactor);
+                xAxis.setLowerBound(xAxis.getLowerBound() + scrollFactor);
+
+                ev.consume();
             }
         });
 
@@ -261,19 +285,18 @@ public class FXMLDocumentController implements Initializable {
     }
 
     public void viewChanel(ActionEvent e) {
-        
-        if(checkBox.isSelected() == false){
-             lineChart.getData().clear();  
+
+        if (checkBox.isSelected() == false) {
+            lineChart.getData().clear();
         }
 
         xAxis.setAutoRanging(true);
         yAxis.setAutoRanging(true);
-        
+
         String choice = choiceBox.getValue().toString();
         int choiceNumber = Integer.parseInt(choice.substring(8, choice.length()));
 
         XYChart.Series series = new XYChart.Series();
-
 
         short[][] Array = new short[64][8000000];
 
@@ -282,13 +305,12 @@ public class FXMLDocumentController implements Initializable {
         int counter = 0;
         double frequency = fileLoader.getFreq();
 
-        
-        for(int i = 0;i<fileLoader.getNumOfLines();i = i+4){
+        for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
 
-             series.getData().add(new XYChart.Data(counter / (frequency / 4), Array[choiceNumber][i]));
-             counter++;
+            series.getData().add(new XYChart.Data(counter / (frequency / 4), Array[choiceNumber][i]));
+            counter++;
         }
-        
+
         lineChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke-width: 1px;");
     }
