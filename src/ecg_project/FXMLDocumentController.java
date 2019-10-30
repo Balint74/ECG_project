@@ -25,10 +25,12 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Slider;
+import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 
 /**
@@ -75,6 +77,17 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private ChoiceBox choiceBox;
 
+    @FXML
+    private Button chanelButton;
+    
+    private BinaryFileLoader fileLoader;
+    
+    @FXML
+    private CheckBox checkBox;
+    
+    @FXML
+    private Pane paneChanel;
+
     public void loadFile(ActionEvent event) {
         FileChooser fc = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Text Files", "*.txt");
@@ -111,7 +124,6 @@ public class FXMLDocumentController implements Initializable {
                     numOfLines = numOfLines + 1;
                 }
 
-                System.out.println("sorokszama: " + numOfLines);
                 fileLength.setText("File length: " + numOfLines);
 
                 br.close();
@@ -152,7 +164,7 @@ public class FXMLDocumentController implements Initializable {
                 status.setText("Status: Wrong File");
             }
 
-            BinaryFileLoader fileLoader = new BinaryFileLoader();
+            fileLoader = new BinaryFileLoader();
             short[][] Array = new short[64][8000000];
 
             Array = fileLoader.load(SelectedFile);
@@ -162,7 +174,7 @@ public class FXMLDocumentController implements Initializable {
             double frequency = fileLoader.getFreq();
             for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
 
-                series.getData().add(new XYChart.Data(counter / (frequency / 4), Array[32][i]));
+                series.getData().add(new XYChart.Data(counter / (frequency / 4), Array[0][i]));
                 counter++;
             }
 
@@ -173,16 +185,16 @@ public class FXMLDocumentController implements Initializable {
             fileLength.setText("File length: " + fileLoader.getNumOfLines());
 
             upperBound = Double.valueOf(fileLoader.getNumOfLines()) / fileLoader.getFreq();
-            System.out.println("Upperbound: " + upperBound);
             zoomButton.setDisable(false);
-            
-            choiceBox.setVisible(true);
+
+            paneChanel.setVisible(true);
             for (int i = 0; i < 64; i++) {
-                choiceBox.getItems().add("Csatorna: " + (i + 1));
+                choiceBox.getItems().add("Chanel: " + (i + 1));
             }
 
             choiceBox.getSelectionModel().selectFirst();
             
+
         } else {
             status.setText("Status: Wrong File");
         }
@@ -199,6 +211,7 @@ public class FXMLDocumentController implements Initializable {
         filePath.setText("File path:");
         fileLength.setText("File length:");
         interval.setText("Interval: ");
+        paneChanel.setVisible(false);
     }
 
     public void exit(ActionEvent event) {
@@ -245,6 +258,39 @@ public class FXMLDocumentController implements Initializable {
 
     public void toolTip() {
 
+    }
+
+    public void viewChanel(ActionEvent e) {
+        
+        if(checkBox.isSelected() == false){
+             lineChart.getData().clear();  
+        }
+
+        xAxis.setAutoRanging(true);
+        yAxis.setAutoRanging(true);
+        
+        String choice = choiceBox.getValue().toString();
+        int choiceNumber = Integer.parseInt(choice.substring(8, choice.length()));
+
+        XYChart.Series series = new XYChart.Series();
+
+
+        short[][] Array = new short[64][8000000];
+
+        Array = fileLoader.getArray();
+
+        int counter = 0;
+        double frequency = fileLoader.getFreq();
+
+        
+        for(int i = 0;i<fileLoader.getNumOfLines();i = i+4){
+
+             series.getData().add(new XYChart.Data(counter / (frequency / 4), Array[choiceNumber][i]));
+             counter++;
+        }
+        
+        lineChart.getData().add(series);
+        series.getNode().setStyle("-fx-stroke-width: 1px;");
     }
 
     @Override

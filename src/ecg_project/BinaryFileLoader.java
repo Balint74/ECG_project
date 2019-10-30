@@ -25,6 +25,7 @@ public class BinaryFileLoader {
 
     private int numOfLines;
     private int freq;
+    private short[][] Array;
                     
     public short[][] load(File file) {
 
@@ -55,13 +56,12 @@ public class BinaryFileLoader {
             Logger.getLogger(BinaryFileLoader.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        short[][] Array = new short[64][8000000];
+        Array = new short[64][8000000];
         int csatorna = 0;
         int ertek = 0;
         int counter = 0;
         numOfLines = 0;
 
-        System.out.println("freq: " + freq);
 
         for (int i = 0; i < shortArray.length - 1; i++) {
 
@@ -97,6 +97,10 @@ public class BinaryFileLoader {
 
     public int getFreq() {
         return freq;
+    }
+
+    public short[][] getArray() {
+        return Array;
     }
 
     
