@@ -9,14 +9,13 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ScrollBar?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ecg_project.FXMLDocumentController">
+<AnchorPane id="AnchorPane" prefHeight="720.0" prefWidth="1281.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ecg_project.FXMLDocumentController">
    <children>
       <MenuBar layoutX="-5.0" prefHeight="29.0" prefWidth="1286.0">
         <menus>
@@ -26,21 +25,26 @@
                   <MenuItem mnemonicParsing="false" onAction="#exit" text="Close" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Filter">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Action 1" />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
-      <Button fx:id="reset" layoutX="15.0" layoutY="46.0" mnemonicParsing="false" onAction="#reset" text="Reset ECG" />
-      <Label fx:id="status" layoutX="14.0" layoutY="687.0" text="Status:" />
       <AnchorPane layoutX="1000.0" layoutY="46.0" prefHeight="166.0" prefWidth="162.0">
          <children>
             <Label layoutX="52.0" layoutY="14.0" text="ECG Data" />
             <Label fx:id="interval" layoutX="14.0" layoutY="41.0" text="Interval:" />
+            <Label fx:id="labelFreq" layoutX="14.0" layoutY="58.0" text="Frequency: " />
          </children>
       </AnchorPane>
-      <AnchorPane layoutX="114.0" layoutY="36.0" prefHeight="67.0" prefWidth="211.0">
+      <AnchorPane layoutX="15.0" layoutY="37.0" prefHeight="67.0" prefWidth="237.0">
          <children>
-            <Label fx:id="fileName" layoutY="6.0" text="File name:" />
-            <Label fx:id="filePath" layoutX="1.0" layoutY="23.0" text="File path: " />
-            <Label fx:id="fileLength" layoutX="1.0" layoutY="40.0" text="File length:" />
+            <Label fx:id="fileName" layoutX="100.0" layoutY="5.0" text="File name:" />
+            <Label fx:id="filePath" layoutX="101.0" layoutY="22.0" text="File path: " />
+            <Label fx:id="fileLength" layoutX="101.0" layoutY="39.0" text="File length:" />
+            <Button fx:id="reset" focusTraversable="false" layoutY="3.0" mnemonicParsing="false" onAction="#reset" text="Reset ECG" />
          </children>
       </AnchorPane>
       <StackPane fx:id="pane" layoutX="1.0" layoutY="326.0" prefHeight="307.0" prefWidth="1280.0">
@@ -59,7 +63,7 @@
             </LineChart>
          </children>
       </StackPane>
-      <Pane layoutX="33.0" layoutY="242.0" prefHeight="84.0" prefWidth="278.0">
+      <Pane layoutX="52.0" layoutY="267.0" prefHeight="84.0" prefWidth="278.0">
          <children>
             <Button fx:id="zoomButton" disable="true" layoutX="28.0" layoutY="26.0" mnemonicParsing="false" onAction="#zoom" text="Zoom" />
             <Slider fx:id="slider" blockIncrement="20.0" layoutX="98.0" layoutY="26.0" majorTickUnit="40.0" min="10.0" showTickLabels="true" value="100.0" />
@@ -71,12 +75,18 @@
             <Button layoutX="100.0" layoutY="29.0" mnemonicParsing="false" onAction="#rightScroll" text="-&gt;" />
          </children>
       </Pane>
-      <ScrollBar fx:id="scrollBar" layoutX="64.0" layoutY="625.0" prefHeight="17.0" prefWidth="1203.0" unitIncrement="10.0" />
-      <Pane fx:id="paneChanel" layoutX="15.0" layoutY="129.0" prefHeight="84.0" prefWidth="278.0" visible="false">
+      <Pane fx:id="paneChanel" layoutX="15.0" layoutY="129.0" prefHeight="121.0" prefWidth="278.0" visible="false">
          <children>
             <Button fx:id="chanelButton" layoutX="188.0" layoutY="29.0" mnemonicParsing="false" onAction="#viewChanel" text="View chanel" />
             <ChoiceBox fx:id="choiceBox" layoutY="29.0" prefWidth="150.0" />
-            <CheckBox fx:id="checkBox" layoutX="93.0" layoutY="70.0" mnemonicParsing="false" text="Draw multiple chanel" />
+            <CheckBox fx:id="checkBox" layoutY="67.0" mnemonicParsing="false" text="Draw multiple chanel" />
+            <Label fx:id="labelChanel" layoutY="99.0" text="Selected chanel: 1" />
+         </children>
+      </Pane>
+      <Label fx:id="status" layoutX="14.0" layoutY="687.0" text="Status:" />
+      <Pane layoutX="346.0" layoutY="269.0" prefHeight="69.0" prefWidth="200.0">
+         <children>
+            <Button fx:id="buttonFilter" disable="true" layoutX="11.0" layoutY="21.0" mnemonicParsing="false" onAction="#filterChanel" text="IIR filter" />
          </children>
       </Pane>
    </children>

@@ -25,12 +25,12 @@ public class BinaryFileLoader {
 
     private int numOfLines;
     private int freq;
-    private short[][] Array;
-                    
+    private short[][] array;
+
     public short[][] load(File file) {
 
         freq = 0;
-        
+        int numOfChanel = 64;
         short[] shortArray = null;
 
         try {
@@ -50,44 +50,45 @@ public class BinaryFileLoader {
 
             freq = shortArray[shortArray.length - 1];
 
+            input.close();
+            fc.close();
+
         } catch (FileNotFoundException ex) {
             Logger.getLogger(BinaryFileLoader.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(BinaryFileLoader.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        Array = new short[64][8000000];
-        int csatorna = 0;
-        int ertek = 0;
+        //Array = new short[64][8000000];
+        array = new short[numOfChanel][(shortArray.length - 2) / 64];
+        int chanel = 0;
+        int value = 0;
         int counter = 0;
         numOfLines = 0;
+        double gain = 0.5;
 
+        for (int i = 0; i < shortArray.length - 2; i++) {
 
-        for (int i = 0; i < shortArray.length - 1; i++) {
+            array[chanel][value + counter] = (short) (gain * shortArray[i]);
 
-            Array[csatorna][ertek + counter] = shortArray[i];
+            if (value == freq - 1) {
+                chanel++;
+                value = 0;
+            } else {
+                value++;
+            }
 
-            
-
-            if (ertek == freq - 1) {
-                csatorna++;
-                ertek = 0;
-            }else
-                ertek++;
-            
-            
-            
-            if (csatorna == 64) { // blokk valtas
-                csatorna = 0;
-                ertek = 0;
-                counter = counter + freq ;
+            if (chanel == 64) { // blokk valtas
+                chanel = 0;
+                value = 0;
+                counter = counter + freq;
                 numOfLines++;
             }
-            
+
         }
-        
+
         numOfLines = numOfLines * freq;
-        return Array;
+        return array;
 
     }
 
@@ -100,10 +101,7 @@ public class BinaryFileLoader {
     }
 
     public short[][] getArray() {
-        return Array;
+        return array;
     }
-
-    
-    
 
 }

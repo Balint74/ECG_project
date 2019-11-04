@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -29,10 +27,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Slider;
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
@@ -73,16 +68,10 @@ public class FXMLDocumentController implements Initializable {
     private Button zoomButton;
 
     @FXML
-    private ScrollBar scrollBar;
-
-    @FXML
     private Label interval;
 
     @FXML
     private ChoiceBox choiceBox;
-
-    @FXML
-    private Button chanelButton;
 
     private BinaryFileLoader fileLoader;
 
@@ -91,6 +80,15 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private Pane paneChanel;
+
+    @FXML
+    private Label labelChanel;
+
+    @FXML
+    private Label labelFreq;
+
+    @FXML
+    private Button buttonFilter;
 
     public void loadFile(ActionEvent event) {
         FileChooser fc = new FileChooser();
@@ -105,13 +103,9 @@ public class FXMLDocumentController implements Initializable {
 
         if (selectedFileExtension.equals(".txt")) {
 
-            if (SelectedFile != null) {
-                fileName.setText("File name: " + SelectedFile.getName());
-                filePath.setText("File path: " + SelectedFile.getAbsolutePath());
-                status.setText("Status: File loaded");
-            } else {
-                status.setText("Status: Wrong File");
-            }
+            fileName.setText("File name: " + SelectedFile.getName());
+            filePath.setText("File path: " + SelectedFile.getAbsolutePath());
+            status.setText("Status: File loaded");
 
             File file = new File(SelectedFile.getAbsolutePath());
             List<Double> array = new ArrayList<Double>();
@@ -129,6 +123,7 @@ public class FXMLDocumentController implements Initializable {
                 }
 
                 fileLength.setText("File length: " + numOfLines);
+                labelFreq.setText("Frequency: 1024");
 
                 br.close();
 
@@ -157,16 +152,13 @@ public class FXMLDocumentController implements Initializable {
 
             upperBound = Double.valueOf(numOfLines) / 1024;
             zoomButton.setDisable(false);
-
+            buttonFilter.setDisable(false);
+//Binaris resz
         } else if (selectedFileExtension.equals(".bsp")) {
 
-            if (SelectedFile != null) {
-                fileName.setText("File name: " + SelectedFile.getName());
-                filePath.setText("File path: " + SelectedFile.getAbsolutePath());
-                status.setText("Status: File loaded");
-            } else {
-                status.setText("Status: Wrong File");
-            }
+            fileName.setText("File name: " + SelectedFile.getName());
+            filePath.setText("File path: " + SelectedFile.getAbsolutePath());
+            status.setText("Status: File loaded");
 
             fileLoader = new BinaryFileLoader();
             short[][] Array = new short[64][8000000];
@@ -187,9 +179,11 @@ public class FXMLDocumentController implements Initializable {
 
             interval.setText("Interval: " + fileLoader.getNumOfLines() / frequency + "s");
             fileLength.setText("File length: " + fileLoader.getNumOfLines());
+            labelFreq.setText("Frequency: " + fileLoader.getFreq());
 
             upperBound = Double.valueOf(fileLoader.getNumOfLines()) / fileLoader.getFreq();
             zoomButton.setDisable(false);
+            buttonFilter.setDisable(false);
 
             paneChanel.setVisible(true);
             for (int i = 0; i < 64; i++) {
@@ -197,6 +191,9 @@ public class FXMLDocumentController implements Initializable {
             }
 
             choiceBox.getSelectionModel().selectFirst();
+            //toolTip(series);
+
+            System.out.println("num of lines: " + fileLoader.getNumOfLines());
 
         } else {
             status.setText("Status: Wrong File");
@@ -230,36 +227,16 @@ public class FXMLDocumentController implements Initializable {
     }
 
     public void scroll() {
-        /*
-        scrollBar.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<? extends Number> ov,
-                    Number old_value, Number new_value) {
 
-                
-                if (new_value.doubleValue() < old_value.doubleValue()) {
-                    xAxis.setUpperBound(xAxis.getUpperBound() - 5);
-                    xAxis.setLowerBound(xAxis.getLowerBound() - 5);
-                } else {
-                    xAxis.setUpperBound(xAxis.getUpperBound() + 5);
-                    xAxis.setLowerBound(xAxis.getLowerBound() + 5);
-                }
-                
-                
-                
-            }
-        });
-         */
-
-            lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
+        lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent ev) {
                 double scrollFactor = 2.5;
-                double deltaY = ev.getDeltaY();
-
+                int deltaY = (int) ev.getDeltaY();
+                //System.out.println(deltaY);
                 if (deltaY < 0) {
-                    scrollFactor = - 2.5;
+                    scrollFactor = -2.5;
                 }
-
 
                 xAxis.setUpperBound(xAxis.getUpperBound() + scrollFactor);
                 xAxis.setLowerBound(xAxis.getLowerBound() + scrollFactor);
@@ -280,10 +257,6 @@ public class FXMLDocumentController implements Initializable {
         xAxis.setLowerBound(xAxis.getLowerBound() + 5);
     }
 
-    public void toolTip() {
-
-    }
-
     public void viewChanel(ActionEvent e) {
 
         if (checkBox.isSelected() == false) {
@@ -298,27 +271,63 @@ public class FXMLDocumentController implements Initializable {
 
         XYChart.Series series = new XYChart.Series();
 
-        short[][] Array = new short[64][8000000];
+        short[][] array = new short[63][fileLoader.getNumOfLines()];
 
-        Array = fileLoader.getArray();
+        array = fileLoader.getArray();
 
         int counter = 0;
         double frequency = fileLoader.getFreq();
 
         for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
 
-            series.getData().add(new XYChart.Data(counter / (frequency / 4), Array[choiceNumber][i]));
+            series.getData().add(new XYChart.Data(counter / (frequency / 4), array[choiceNumber - 1][i]));
             counter++;
         }
 
         lineChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke-width: 1px;");
+
+        if (checkBox.isSelected() == true) {
+            labelChanel.setText(labelChanel.getText() + " ," + choiceNumber);
+        } else {
+            labelChanel.setText("Selected chanel: " + choiceNumber);
+
+        }
+
+    }
+
+    public void filterChanel(ActionEvent e) {
+        lineChart.getData().clear();
+
+        Filter filter = new Filter();
+        double array[] = new double[fileLoader.getNumOfLines()];
+
+        String choice = choiceBox.getValue().toString();
+        int choiceNumber = Integer.parseInt(choice.substring(8, choice.length()));
+
+        
+        array = filter.load(fileLoader.getArray(), choiceNumber - 1, fileLoader.getNumOfLines());
+        XYChart.Series series = new XYChart.Series();
+
+        int counter = 0;
+        double frequency = fileLoader.getFreq();
+
+        for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
+
+            series.getData().add(new XYChart.Data(counter / (frequency / 4), array[i]));
+            counter++;
+        }
+
+        lineChart.getData().add(series);
+        series.getNode().setStyle("-fx-stroke-width: 1px;");
+        labelChanel.setText("Selected chanel: " + choiceNumber);
+        status.setText("Chanel filtered");
+
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         scroll();
-
     }
 
 }
