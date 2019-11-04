@@ -176,6 +176,7 @@ public class FXMLDocumentController implements Initializable {
 
             lineChart.getData().add(series);
             series.getNode().setStyle("-fx-stroke-width: 1px;");
+            series.setName("Chanel 1");
 
             interval.setText("Interval: " + fileLoader.getNumOfLines() / frequency + "s");
             fileLength.setText("File length: " + fileLoader.getNumOfLines());
@@ -211,6 +212,7 @@ public class FXMLDocumentController implements Initializable {
         filePath.setText("File path:");
         fileLength.setText("File length:");
         interval.setText("Interval: ");
+        labelFreq.setText("Frequency: ");
         paneChanel.setVisible(false);
     }
 
@@ -283,7 +285,7 @@ public class FXMLDocumentController implements Initializable {
             series.getData().add(new XYChart.Data(counter / (frequency / 4), array[choiceNumber - 1][i]));
             counter++;
         }
-
+        series.setName("Chanel " + choiceNumber);
         lineChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke-width: 1px;");
 
@@ -305,9 +307,9 @@ public class FXMLDocumentController implements Initializable {
         String choice = choiceBox.getValue().toString();
         int choiceNumber = Integer.parseInt(choice.substring(8, choice.length()));
 
-        
         array = filter.load(fileLoader.getArray(), choiceNumber - 1, fileLoader.getNumOfLines());
         XYChart.Series series = new XYChart.Series();
+        series.setName("Chanel " + choiceNumber);
 
         int counter = 0;
         double frequency = fileLoader.getFreq();
@@ -320,6 +322,7 @@ public class FXMLDocumentController implements Initializable {
 
         lineChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke-width: 1px;");
+
         labelChanel.setText("Selected chanel: " + choiceNumber);
         status.setText("Chanel filtered");
 

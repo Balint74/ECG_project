@@ -34,8 +34,6 @@ public class Filter {
                     filteredArray[n] = (bValues[0] * array[x][n] + bValues[1] * array[x][n - 1] + bValues[2] * array[x][n - 2] + bValues[3] * array[x][n - 3] + bValues[4] * array[x][n - 4] + aValues[1] * filteredArray[n - 1] - aValues[2] * filteredArray[n - 2] - aValues[3] * filteredArray[n - 3] - aValues[4] * filteredArray[n - 4]);
                     break;
             }
-            System.out.println("original: " + array[x][n]);
-            System.out.println("filtered: " + filteredArray[n]);
 
         }
 
