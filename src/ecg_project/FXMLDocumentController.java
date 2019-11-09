@@ -27,9 +27,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 
 /**
@@ -79,9 +79,6 @@ public class FXMLDocumentController implements Initializable {
     private CheckBox checkBox;
 
     @FXML
-    private Pane paneChanel;
-
-    @FXML
     private Label labelChanel;
 
     @FXML
@@ -90,12 +87,20 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private Button buttonFilter;
 
+    @FXML
+    private Button chanelButton;
+
+    private double[] filterArray;
+
+    @FXML
+    private MenuItem saveMenuItem;
+
     public void loadFile(ActionEvent event) {
         FileChooser fc = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Text Files", "*.txt");
-        FileChooser.ExtensionFilter extFilter2 = new FileChooser.ExtensionFilter("Binary Files", "*.bsp");
-        fc.getExtensionFilters().add(extFilter);
-        fc.getExtensionFilters().add(extFilter2);
+
+        fc.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Binary Files", "*.bsp"),
+                new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+
         File SelectedFile = fc.showOpenDialog(null);
 
         String selectedFileName = SelectedFile.getName();
@@ -103,6 +108,7 @@ public class FXMLDocumentController implements Initializable {
 
         if (selectedFileExtension.equals(".txt")) {
 
+            chanelButton.setDisable(true);
             fileName.setText("File name: " + SelectedFile.getName());
             filePath.setText("File path: " + SelectedFile.getAbsolutePath());
             status.setText("Status: File loaded");
@@ -118,12 +124,11 @@ public class FXMLDocumentController implements Initializable {
                 while ((line = br.readLine()) != null) {
                     double db = Double.parseDouble(line);
                     array.add(db);
-                    //System.out.println(db);
                     numOfLines = numOfLines + 1;
                 }
 
                 fileLength.setText("File length: " + numOfLines);
-                labelFreq.setText("Frequency: 1024");
+                labelFreq.setText("Frequency: 1024hz");
 
                 br.close();
 
@@ -136,6 +141,7 @@ public class FXMLDocumentController implements Initializable {
             }
 
             XYChart.Series series = new XYChart.Series();
+            series.setName("ECG");
 
             double frequency = 256.0;
             int counter = 0;
@@ -152,16 +158,19 @@ public class FXMLDocumentController implements Initializable {
 
             upperBound = Double.valueOf(numOfLines) / 1024;
             zoomButton.setDisable(false);
-            buttonFilter.setDisable(false);
+
 //Binaris resz
         } else if (selectedFileExtension.equals(".bsp")) {
+
+            
 
             fileName.setText("File name: " + SelectedFile.getName());
             filePath.setText("File path: " + SelectedFile.getAbsolutePath());
             status.setText("Status: File loaded");
+            chanelButton.setDisable(false);
 
             fileLoader = new BinaryFileLoader();
-            short[][] Array = new short[64][8000000];
+            short[][] Array = new short[64][fileLoader.getNumOfLines()];
 
             Array = fileLoader.load(SelectedFile);
 
@@ -180,21 +189,18 @@ public class FXMLDocumentController implements Initializable {
 
             interval.setText("Interval: " + fileLoader.getNumOfLines() / frequency + "s");
             fileLength.setText("File length: " + fileLoader.getNumOfLines());
-            labelFreq.setText("Frequency: " + fileLoader.getFreq());
+            labelFreq.setText("Frequency: " + fileLoader.getFreq() + "hz");
+            labelChanel.setText("Selected chanel: 1");
 
             upperBound = Double.valueOf(fileLoader.getNumOfLines()) / fileLoader.getFreq();
             zoomButton.setDisable(false);
             buttonFilter.setDisable(false);
 
-            paneChanel.setVisible(true);
             for (int i = 0; i < 64; i++) {
                 choiceBox.getItems().add("Chanel: " + (i + 1));
             }
 
             choiceBox.getSelectionModel().selectFirst();
-            //toolTip(series);
-
-            System.out.println("num of lines: " + fileLoader.getNumOfLines());
 
         } else {
             status.setText("Status: Wrong File");
@@ -204,6 +210,8 @@ public class FXMLDocumentController implements Initializable {
 
     public void reset(ActionEvent event) {
         lineChart.getData().clear();
+        choiceBox.getSelectionModel().clearSelection();
+        choiceBox.getItems().clear();
         xAxis.setAutoRanging(true);
         yAxis.setAutoRanging(true);
         zoomButton.setDisable(true);
@@ -213,7 +221,10 @@ public class FXMLDocumentController implements Initializable {
         fileLength.setText("File length:");
         interval.setText("Interval: ");
         labelFreq.setText("Frequency: ");
-        paneChanel.setVisible(false);
+        labelChanel.setText("Selected chanel: ");
+        chanelButton.setDisable(true);
+        buttonFilter.setDisable(true);
+        saveMenuItem.setDisable(true);
     }
 
     public void exit(ActionEvent event) {
@@ -302,12 +313,12 @@ public class FXMLDocumentController implements Initializable {
         lineChart.getData().clear();
 
         Filter filter = new Filter();
-        double array[] = new double[fileLoader.getNumOfLines()];
+        filterArray = new double[fileLoader.getNumOfLines()];
 
         String choice = choiceBox.getValue().toString();
         int choiceNumber = Integer.parseInt(choice.substring(8, choice.length()));
 
-        array = filter.load(fileLoader.getArray(), choiceNumber - 1, fileLoader.getNumOfLines());
+        filterArray = filter.load(fileLoader.getArray(), choiceNumber - 1, fileLoader.getNumOfLines());
         XYChart.Series series = new XYChart.Series();
         series.setName("Chanel " + choiceNumber);
 
@@ -316,7 +327,7 @@ public class FXMLDocumentController implements Initializable {
 
         for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
 
-            series.getData().add(new XYChart.Data(counter / (frequency / 4), array[i]));
+            series.getData().add(new XYChart.Data(counter / (frequency / 4), filterArray[i]));
             counter++;
         }
 
@@ -324,8 +335,17 @@ public class FXMLDocumentController implements Initializable {
         series.getNode().setStyle("-fx-stroke-width: 1px;");
 
         labelChanel.setText("Selected chanel: " + choiceNumber);
-        status.setText("Chanel filtered");
+        status.setText("Status: Chanel filtered");
 
+        saveMenuItem.setDisable(false);
+        saveMenuItem.setStyle("-fx-opacity: 1.0; -fx-text-fill: black;");
+
+    }
+
+    public void write(ActionEvent e) {
+
+        Filter.write(filterArray);
+        status.setText("Status: Filter saved");
     }
 
     @Override

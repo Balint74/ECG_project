@@ -59,7 +59,6 @@ public class BinaryFileLoader {
             Logger.getLogger(BinaryFileLoader.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        //Array = new short[64][8000000];
         array = new short[numOfChanel][(shortArray.length - 2) / 64];
         int chanel = 0;
         int value = 0;

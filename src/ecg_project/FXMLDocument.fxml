@@ -27,7 +27,7 @@
           </Menu>
             <Menu mnemonicParsing="false" text="Filter">
               <items>
-                <MenuItem mnemonicParsing="false" text="Action 1" />
+                <MenuItem fx:id="saveMenuItem" disable="true" mnemonicParsing="false" onAction="#write" text="Save" />
               </items>
             </Menu>
         </menus>
@@ -75,12 +75,12 @@
             <Button layoutX="100.0" layoutY="29.0" mnemonicParsing="false" onAction="#rightScroll" text="-&gt;" />
          </children>
       </Pane>
-      <Pane fx:id="paneChanel" layoutX="15.0" layoutY="129.0" prefHeight="121.0" prefWidth="278.0" visible="false">
+      <Pane fx:id="paneChanel" layoutX="15.0" layoutY="129.0" prefHeight="121.0" prefWidth="278.0">
          <children>
-            <Button fx:id="chanelButton" layoutX="188.0" layoutY="29.0" mnemonicParsing="false" onAction="#viewChanel" text="View chanel" />
+            <Button fx:id="chanelButton" disable="true" layoutX="188.0" layoutY="29.0" mnemonicParsing="false" onAction="#viewChanel" text="View chanel" />
             <ChoiceBox fx:id="choiceBox" layoutY="29.0" prefWidth="150.0" />
             <CheckBox fx:id="checkBox" layoutY="67.0" mnemonicParsing="false" text="Draw multiple chanel" />
-            <Label fx:id="labelChanel" layoutY="99.0" text="Selected chanel: 1" />
+            <Label fx:id="labelChanel" layoutY="99.0" text="Selected chanel: " />
          </children>
       </Pane>
       <Label fx:id="status" layoutX="14.0" layoutY="687.0" text="Status:" />
