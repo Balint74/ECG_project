@@ -20,16 +20,22 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 
 /**
@@ -95,6 +101,11 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private MenuItem saveMenuItem;
 
+    @FXML
+    private Label labelCursorCords;
+
+    private XYChart.Series series = new XYChart.Series();
+
     public void loadFile(ActionEvent event) {
         FileChooser fc = new FileChooser();
 
@@ -140,7 +151,7 @@ public class FXMLDocumentController implements Initializable {
                 System.out.println("I/O catch");
             }
 
-            XYChart.Series series = new XYChart.Series();
+            series = new XYChart.Series();
             series.setName("ECG");
 
             double frequency = 256.0;
@@ -152,6 +163,7 @@ public class FXMLDocumentController implements Initializable {
             }
 
             lineChart.getData().add(series);
+
             series.getNode().setStyle("-fx-stroke-width: 1px;");
 
             interval.setText("Interval: " + numOfLines / 4 / frequency + "s");
@@ -161,8 +173,6 @@ public class FXMLDocumentController implements Initializable {
 
 //Binaris resz
         } else if (selectedFileExtension.equals(".bsp")) {
-
-            
 
             fileName.setText("File name: " + SelectedFile.getName());
             filePath.setText("File path: " + SelectedFile.getAbsolutePath());
@@ -174,7 +184,7 @@ public class FXMLDocumentController implements Initializable {
 
             Array = fileLoader.load(SelectedFile);
 
-            XYChart.Series series = new XYChart.Series();
+            series = new XYChart.Series<Double,Double>();
             int counter = 0;
             double frequency = fileLoader.getFreq();
             for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
@@ -201,6 +211,12 @@ public class FXMLDocumentController implements Initializable {
             }
 
             choiceBox.getSelectionModel().selectFirst();
+            //lineChart.getPlugins().addAll(new Zoomer(), new Panner(), new CrosshairIndicator<>(), new DataPointTooltip<>());
+
+            double dsor = 0.1;
+            String sor= series.getData().get(1).toString();
+            System.out.println(sor);
+            System.out.println(sor.substring(sor.indexOf(",") + 1, sor.lastIndexOf(",")));
 
         } else {
             status.setText("Status: Wrong File");
@@ -225,6 +241,7 @@ public class FXMLDocumentController implements Initializable {
         chanelButton.setDisable(true);
         buttonFilter.setDisable(true);
         saveMenuItem.setDisable(true);
+        slider.setValue(100);
     }
 
     public void exit(ActionEvent event) {
@@ -282,7 +299,7 @@ public class FXMLDocumentController implements Initializable {
         String choice = choiceBox.getValue().toString();
         int choiceNumber = Integer.parseInt(choice.substring(8, choice.length()));
 
-        XYChart.Series series = new XYChart.Series();
+        series = new XYChart.Series();
 
         short[][] array = new short[63][fileLoader.getNumOfLines()];
 
@@ -319,7 +336,7 @@ public class FXMLDocumentController implements Initializable {
         int choiceNumber = Integer.parseInt(choice.substring(8, choice.length()));
 
         filterArray = filter.load(fileLoader.getArray(), choiceNumber - 1, fileLoader.getNumOfLines());
-        XYChart.Series series = new XYChart.Series();
+        series = new XYChart.Series();
         series.setName("Chanel " + choiceNumber);
 
         int counter = 0;
@@ -348,9 +365,31 @@ public class FXMLDocumentController implements Initializable {
         status.setText("Status: Filter saved");
     }
 
+    public void mouseCords() {
+        lineChart.setOnMouseMoved((MouseEvent event) -> {
+
+            Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
+            double x = (int) xAxis.sceneToLocal(mouseSceneCoords).getX();
+            double y = yAxis.sceneToLocal(mouseSceneCoords).getY();
+
+            labelCursorCords.setText(String.format("(X = %.2f  Y =  %.2f)", xAxis.getValueForDisplay(x), yAxis.getValueForDisplay(y)));
+
+            String graphYvalue = series.getData().get((int)xAxis.getValueForDisplay(x).doubleValue()).toString();
+            System.out.println(graphYvalue.substring(graphYvalue.indexOf(",") + 1, graphYvalue.lastIndexOf(",")));
+
+        });
+
+        lineChart.setOnMouseExited((MouseEvent) -> {
+
+            labelCursorCords.setText("");
+
+        });
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         scroll();
+        mouseCords();
     }
 
 }
