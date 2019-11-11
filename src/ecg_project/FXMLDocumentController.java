@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -34,6 +37,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
@@ -106,6 +110,9 @@ public class FXMLDocumentController implements Initializable {
 
     private XYChart.Series series = new XYChart.Series();
 
+    @FXML
+    private StackPane stackPane;
+
     public void loadFile(ActionEvent event) {
         FileChooser fc = new FileChooser();
 
@@ -156,14 +163,21 @@ public class FXMLDocumentController implements Initializable {
 
             double frequency = 256.0;
             int counter = 0;
+
+            ObservableList<XYChart.Data<Number, Number>> list = FXCollections.observableArrayList();
             for (int i = 0; i < numOfLines - 1; i = i + 4) {
 
-                series.getData().add(new XYChart.Data(counter / frequency, array.get(i)));
+                list.add(new XYChart.Data(counter / frequency, array.get(i)));
+
                 counter++;
             }
-
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    series.getData().addAll(list);
+                }
+            });
             lineChart.getData().add(series);
-
             series.getNode().setStyle("-fx-stroke-width: 1px;");
 
             interval.setText("Interval: " + numOfLines / 4 / frequency + "s");
@@ -184,15 +198,16 @@ public class FXMLDocumentController implements Initializable {
 
             Array = fileLoader.load(SelectedFile);
 
-            series = new XYChart.Series<Double,Double>();
+            series = new XYChart.Series<Double, Double>();
             int counter = 0;
             double frequency = fileLoader.getFreq();
+            ObservableList<XYChart.Data<Number, Number>> list = FXCollections.observableArrayList();
             for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
 
-                series.getData().add(new XYChart.Data(counter / (frequency / 4), Array[0][i]));
+                list.add(new XYChart.Data(counter / (frequency / 4), Array[0][i]));
                 counter++;
             }
-
+            series.getData().addAll(list);
             lineChart.getData().add(series);
             series.getNode().setStyle("-fx-stroke-width: 1px;");
             series.setName("Chanel 1");
@@ -214,9 +229,11 @@ public class FXMLDocumentController implements Initializable {
             //lineChart.getPlugins().addAll(new Zoomer(), new Panner(), new CrosshairIndicator<>(), new DataPointTooltip<>());
 
             double dsor = 0.1;
-            String sor= series.getData().get(1).toString();
+            String sor = series.getData().get(1).toString();
             System.out.println(sor);
             System.out.println(sor.substring(sor.indexOf(",") + 1, sor.lastIndexOf(",")));
+
+            System.out.println("List:" + list.get(1));
 
         } else {
             status.setText("Status: Wrong File");
@@ -307,12 +324,13 @@ public class FXMLDocumentController implements Initializable {
 
         int counter = 0;
         double frequency = fileLoader.getFreq();
-
+        ObservableList<XYChart.Data<Number, Number>> list = FXCollections.observableArrayList();
         for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
 
-            series.getData().add(new XYChart.Data(counter / (frequency / 4), array[choiceNumber - 1][i]));
+            list.add(new XYChart.Data(counter / (frequency / 4), array[choiceNumber - 1][i]));
             counter++;
         }
+        series.getData().addAll(list);
         series.setName("Chanel " + choiceNumber);
         lineChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke-width: 1px;");
@@ -341,13 +359,13 @@ public class FXMLDocumentController implements Initializable {
 
         int counter = 0;
         double frequency = fileLoader.getFreq();
-
+        ObservableList<XYChart.Data<Number, Number>> list = FXCollections.observableArrayList();
         for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
 
-            series.getData().add(new XYChart.Data(counter / (frequency / 4), filterArray[i]));
+            list.add(new XYChart.Data(counter / (frequency / 4), filterArray[i]));
             counter++;
         }
-
+        series.getData().addAll(list);
         lineChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke-width: 1px;");
 
@@ -366,6 +384,8 @@ public class FXMLDocumentController implements Initializable {
     }
 
     public void mouseCords() {
+
+        
         lineChart.setOnMouseMoved((MouseEvent event) -> {
 
             Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
@@ -374,9 +394,8 @@ public class FXMLDocumentController implements Initializable {
 
             labelCursorCords.setText(String.format("(X = %.2f  Y =  %.2f)", xAxis.getValueForDisplay(x), yAxis.getValueForDisplay(y)));
 
-            String graphYvalue = series.getData().get((int)xAxis.getValueForDisplay(x).doubleValue()).toString();
-            System.out.println(graphYvalue.substring(graphYvalue.indexOf(",") + 1, graphYvalue.lastIndexOf(",")));
-
+            //String graphYvalue = series.getData().get((int) xAxis.getValueForDisplay(x).doubleValue()).toString();
+            //System.out.println(graphYvalue.substring(graphYvalue.indexOf(",") + 1, graphYvalue.lastIndexOf(",")));
         });
 
         lineChart.setOnMouseExited((MouseEvent) -> {
