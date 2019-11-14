@@ -27,19 +27,14 @@ import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
-import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 
 /**
@@ -111,7 +106,10 @@ public class FXMLDocumentController implements Initializable {
     private XYChart.Series series = new XYChart.Series();
 
     @FXML
-    private StackPane stackPane;
+    private CheckBox checkBoxHighPass;
+
+    @FXML
+    private CheckBox checkBoxLowPass;
 
     public void loadFile(ActionEvent event) {
         FileChooser fc = new FileChooser();
@@ -198,7 +196,7 @@ public class FXMLDocumentController implements Initializable {
 
             Array = fileLoader.load(SelectedFile);
 
-            series = new XYChart.Series<Double, Double>();
+            series = new XYChart.Series<Number, Number>();
             int counter = 0;
             double frequency = fileLoader.getFreq();
             ObservableList<XYChart.Data<Number, Number>> list = FXCollections.observableArrayList();
@@ -233,8 +231,6 @@ public class FXMLDocumentController implements Initializable {
             System.out.println(sor);
             System.out.println(sor.substring(sor.indexOf(",") + 1, sor.lastIndexOf(",")));
 
-            System.out.println("List:" + list.get(1));
-
         } else {
             status.setText("Status: Wrong File");
         }
@@ -259,6 +255,8 @@ public class FXMLDocumentController implements Initializable {
         buttonFilter.setDisable(true);
         saveMenuItem.setDisable(true);
         slider.setValue(100);
+        checkBoxHighPass.setSelected(true);
+        checkBoxLowPass.setSelected(true);
     }
 
     public void exit(ActionEvent event) {
@@ -345,54 +343,79 @@ public class FXMLDocumentController implements Initializable {
     }
 
     public void filterChanel(ActionEvent e) {
-        lineChart.getData().clear();
 
-        Filter filter = new Filter();
-        filterArray = new double[fileLoader.getNumOfLines()];
+        if (checkBoxHighPass.isSelected() == false && checkBoxLowPass.isSelected() == false) {
 
-        String choice = choiceBox.getValue().toString();
-        int choiceNumber = Integer.parseInt(choice.substring(8, choice.length()));
+        } else {
 
-        filterArray = filter.load(fileLoader.getArray(), choiceNumber - 1, fileLoader.getNumOfLines());
-        series = new XYChart.Series();
-        series.setName("Chanel " + choiceNumber);
+            lineChart.getData().clear();
 
-        int counter = 0;
-        double frequency = fileLoader.getFreq();
-        ObservableList<XYChart.Data<Number, Number>> list = FXCollections.observableArrayList();
-        for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
+            Filter filter = new Filter();
+            filterArray = new double[fileLoader.getNumOfLines()];
 
-            list.add(new XYChart.Data(counter / (frequency / 4), filterArray[i]));
-            counter++;
+            String choice = choiceBox.getValue().toString();
+            int choiceNumber = Integer.parseInt(choice.substring(8, choice.length()));
+
+            short[][] array = new short[63][fileLoader.getNumOfLines()];
+            array = fileLoader.getArray();
+            double[] inputArray = new double[fileLoader.getNumOfLines()];
+
+            for (int i = 0; i < fileLoader.getNumOfLines(); i++) {
+                inputArray[i] = array[choiceNumber - 1][i];
+            }
+
+            if (checkBoxHighPass.isSelected() == true && checkBoxLowPass.isSelected() == false) {
+                filterArray = filter.highPass(inputArray, choiceNumber - 1, fileLoader.getNumOfLines());
+            }
+
+            if (checkBoxLowPass.isSelected() == true && checkBoxHighPass.isSelected() == false) {
+                filterArray = filter.lowPass(inputArray, choiceNumber - 1, fileLoader.getNumOfLines());
+            }
+            if (checkBoxHighPass.isSelected() && checkBoxLowPass.isSelected()) {
+                filterArray = filter.highPass(inputArray, choiceNumber - 1, fileLoader.getNumOfLines());
+                filterArray = filter.lowPass(filterArray, choiceNumber - 1, fileLoader.getNumOfLines());
+            }
+
+            series = new XYChart.Series();
+            series.setName("Chanel " + choiceNumber);
+
+            int counter = 0;
+            double frequency = fileLoader.getFreq();
+
+            ObservableList<XYChart.Data<Number, Number>> list = FXCollections.observableArrayList();
+            for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
+
+                list.add(new XYChart.Data(counter / (frequency / 4), filterArray[i]));
+                counter++;
+            }
+            series.getData().addAll(list);
+            lineChart.getData().add(series);
+            series.getNode().setStyle("-fx-stroke-width: 1px;");
+
+            labelChanel.setText("Selected chanel: " + choiceNumber);
+            status.setText("Status: Chanel filtered");
+
+            saveMenuItem.setDisable(false);
+            saveMenuItem.setStyle("-fx-opacity: 1.0; -fx-text-fill: black;");
         }
-        series.getData().addAll(list);
-        lineChart.getData().add(series);
-        series.getNode().setStyle("-fx-stroke-width: 1px;");
-
-        labelChanel.setText("Selected chanel: " + choiceNumber);
-        status.setText("Status: Chanel filtered");
-
-        saveMenuItem.setDisable(false);
-        saveMenuItem.setStyle("-fx-opacity: 1.0; -fx-text-fill: black;");
 
     }
 
     public void write(ActionEvent e) {
 
-        Filter.write(filterArray);
+        WriteFile.write(filterArray);
         status.setText("Status: Filter saved");
     }
 
     public void mouseCords() {
 
-        
         lineChart.setOnMouseMoved((MouseEvent event) -> {
 
             Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
             double x = (int) xAxis.sceneToLocal(mouseSceneCoords).getX();
             double y = yAxis.sceneToLocal(mouseSceneCoords).getY();
 
-            labelCursorCords.setText(String.format("(X = %.2f  Y =  %.2f)", xAxis.getValueForDisplay(x), yAxis.getValueForDisplay(y)));
+            labelCursorCords.setText(String.format("(%.2f   %.2f)", xAxis.getValueForDisplay(x), yAxis.getValueForDisplay(y)));
 
             //String graphYvalue = series.getData().get((int) xAxis.getValueForDisplay(x).doubleValue()).toString();
             //System.out.println(graphYvalue.substring(graphYvalue.indexOf(",") + 1, graphYvalue.lastIndexOf(",")));
