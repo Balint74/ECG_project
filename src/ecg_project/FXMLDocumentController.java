@@ -349,6 +349,8 @@ public class FXMLDocumentController implements Initializable {
         } else {
 
             lineChart.getData().clear();
+            xAxis.setAutoRanging(true);
+            yAxis.setAutoRanging(true);
 
             Filter filter = new Filter();
             filterArray = new double[fileLoader.getNumOfLines()];
