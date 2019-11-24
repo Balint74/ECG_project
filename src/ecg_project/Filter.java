@@ -19,38 +19,36 @@ public class Filter {
     double[] aValuesLowPass = {1.0, -3.359405101313432, 4.275509077139395, -2.438998657437775, 0.525578974468844};
     double[] bValuesLowPass = {1.677683035644570e-04, 6.710732142578280e-04, 0.001006609821387, 6.710732142578280e-04, 1.677683035644570e-04};
 
-    public double[] highPass(double[] array, int x, int numOfLines) {
+    public double[] highPass(double[] array) {
 
-        double[] filteredArray = new double[numOfLines];
-
-        filteredArray = filt(array, aValuesHighPass, bValuesHighPass,true);
-        ArrayUtils.reverse(filteredArray);
-        filteredArray = filt(filteredArray, aValuesHighPass, bValuesHighPass,true);
-        ArrayUtils.reverse(filteredArray);
-
-        return filteredArray;
-
-    }
-
-    public double[] lowPass(double[] array, int x, int numOfLines) {
-
-        double[] filteredArray = new double[numOfLines];
-
-        filteredArray = filt(array, aValuesLowPass, bValuesLowPass,false);
-        ArrayUtils.reverse(filteredArray);
-        filteredArray = filt(filteredArray, aValuesLowPass, bValuesLowPass,false);
-        ArrayUtils.reverse(filteredArray);
-
-        return filteredArray;
-
-    }
-
-    double[] filt(double[] array, double[] aValues, double[] bValues,boolean isIthighPass) {
-        
         double[] filteredArray = new double[array.length];
 
+        filteredArray = filt(array, aValuesHighPass, bValuesHighPass, true);
+        ArrayUtils.reverse(filteredArray);
+        filteredArray = filt(filteredArray, aValuesHighPass, bValuesHighPass, true);
+        ArrayUtils.reverse(filteredArray);
 
-        
+        return filteredArray;
+
+    }
+
+    public double[] lowPass(double[] array) {
+
+        double[] filteredArray = new double[array.length];
+
+        filteredArray = filt(array, aValuesLowPass, bValuesLowPass, false);
+        ArrayUtils.reverse(filteredArray);
+        filteredArray = filt(filteredArray, aValuesLowPass, bValuesLowPass, false);
+        ArrayUtils.reverse(filteredArray);
+
+        return filteredArray;
+
+    }
+
+    double[] filt(double[] array, double[] aValues, double[] bValues, boolean isIthighPass) {
+
+        double[] filteredArray = new double[array.length];
+
         for (int n = 0; n < array.length; n++) {
 
             double elotag = 0;
@@ -69,7 +67,7 @@ public class Filter {
 
             }
 
-            filteredArray[n] = utotag - elotag;  
+            filteredArray[n] = utotag - elotag;
             //System.out.println(n + ".tag: " + filteredArray[n]);
 
         }

@@ -92,5 +92,6 @@
       </Pane>
       <Label fx:id="status" layoutX="14.0" layoutY="687.0" text="Status:" />
       <Label fx:id="labelCursorCords" layoutX="67.0" layoutY="625.0" />
+      <Button fx:id="buttonFilterAll" disable="true" layoutX="1038.0" layoutY="254.0" mnemonicParsing="false" onAction="#fillAll" text="Filter all chanel" />
    </children>
 </AnchorPane>

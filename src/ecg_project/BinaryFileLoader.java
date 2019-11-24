@@ -103,4 +103,8 @@ public class BinaryFileLoader {
         return array;
     }
 
+    public void setArray(short[][] array) {
+        this.array = array;
+    }
+
 }

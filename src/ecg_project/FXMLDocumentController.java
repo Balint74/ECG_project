@@ -111,6 +111,9 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private CheckBox checkBoxLowPass;
 
+    @FXML
+    private Button buttonFilterAll;
+
     public void loadFile(ActionEvent event) {
         FileChooser fc = new FileChooser();
 
@@ -192,9 +195,9 @@ public class FXMLDocumentController implements Initializable {
             chanelButton.setDisable(false);
 
             fileLoader = new BinaryFileLoader();
-            short[][] Array = new short[64][fileLoader.getNumOfLines()];
+            short[][] array = new short[64][fileLoader.getNumOfLines()];
 
-            Array = fileLoader.load(SelectedFile);
+            array = fileLoader.load(SelectedFile);
 
             series = new XYChart.Series<Number, Number>();
             int counter = 0;
@@ -202,7 +205,7 @@ public class FXMLDocumentController implements Initializable {
             ObservableList<XYChart.Data<Number, Number>> list = FXCollections.observableArrayList();
             for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
 
-                list.add(new XYChart.Data(counter / (frequency / 4), Array[0][i]));
+                list.add(new XYChart.Data(counter / (frequency / 4), array[0][i]));
                 counter++;
             }
             series.getData().addAll(list);
@@ -218,18 +221,13 @@ public class FXMLDocumentController implements Initializable {
             upperBound = Double.valueOf(fileLoader.getNumOfLines()) / fileLoader.getFreq();
             zoomButton.setDisable(false);
             buttonFilter.setDisable(false);
+            buttonFilterAll.setDisable(false);
 
             for (int i = 0; i < 64; i++) {
                 choiceBox.getItems().add("Chanel: " + (i + 1));
             }
 
             choiceBox.getSelectionModel().selectFirst();
-            //lineChart.getPlugins().addAll(new Zoomer(), new Panner(), new CrosshairIndicator<>(), new DataPointTooltip<>());
-
-            double dsor = 0.1;
-            String sor = series.getData().get(1).toString();
-            System.out.println(sor);
-            System.out.println(sor.substring(sor.indexOf(",") + 1, sor.lastIndexOf(",")));
 
         } else {
             status.setText("Status: Wrong File");
@@ -367,15 +365,15 @@ public class FXMLDocumentController implements Initializable {
             }
 
             if (checkBoxHighPass.isSelected() == true && checkBoxLowPass.isSelected() == false) {
-                filterArray = filter.highPass(inputArray, choiceNumber - 1, fileLoader.getNumOfLines());
+                filterArray = filter.highPass(inputArray);
             }
 
             if (checkBoxLowPass.isSelected() == true && checkBoxHighPass.isSelected() == false) {
-                filterArray = filter.lowPass(inputArray, choiceNumber - 1, fileLoader.getNumOfLines());
+                filterArray = filter.lowPass(inputArray);
             }
             if (checkBoxHighPass.isSelected() && checkBoxLowPass.isSelected()) {
-                filterArray = filter.highPass(inputArray, choiceNumber - 1, fileLoader.getNumOfLines());
-                filterArray = filter.lowPass(filterArray, choiceNumber - 1, fileLoader.getNumOfLines());
+                filterArray = filter.highPass(inputArray);
+                filterArray = filter.lowPass(filterArray);
             }
 
             series = new XYChart.Series();
@@ -428,6 +426,52 @@ public class FXMLDocumentController implements Initializable {
             labelCursorCords.setText("");
 
         });
+    }
+
+    public void fillAll(ActionEvent e) {
+
+        lineChart.getData().clear();
+
+        short[][] array = new short[64][fileLoader.getNumOfLines()];
+        short[][] finalArray = new short[64][fileLoader.getNumOfLines()];
+        array = fileLoader.getArray();
+        Filter filter = new Filter();
+
+        double[] tempArray = new double[fileLoader.getNumOfLines()];
+        double[] tempArray2 = new double[fileLoader.getNumOfLines()];
+
+        for (int i = 0; i < 64; i++) {
+            for (int j = 0; j < fileLoader.getNumOfLines(); j++) {
+                tempArray[j] = array[i][j];
+            }
+            tempArray2 = filter.highPass(tempArray);
+            tempArray2 = filter.lowPass(tempArray2);
+
+            for (int k = 0; k < fileLoader.getNumOfLines(); k++) {
+                finalArray[i][k] = (short) tempArray2[k];
+            }
+
+        }
+
+        fileLoader.setArray(finalArray);
+
+        series = new XYChart.Series<Number, Number>();
+        int counter = 0;
+        double frequency = fileLoader.getFreq();
+        ObservableList<XYChart.Data<Number, Number>> list = FXCollections.observableArrayList();
+        for (int i = 0; i < fileLoader.getNumOfLines(); i = i + 4) {
+
+            list.add(new XYChart.Data(counter / (frequency / 4), finalArray[0][i]));
+            counter++;
+        }
+        series.getData().addAll(list);
+        lineChart.getData().add(series);
+        series.getNode().setStyle("-fx-stroke-width: 1px;");
+        series.setName("Chanel 1");
+
+        buttonFilter.setDisable(true);
+        
+        status.setText("Status: All chanel filtered");
     }
 
     @Override
