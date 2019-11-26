@@ -428,7 +428,7 @@ public class FXMLDocumentController implements Initializable {
         });
     }
 
-    public void fillAll(ActionEvent e) {
+    public void filterAll(ActionEvent e) {
 
         lineChart.getData().clear();
 

@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="720.0" prefWidth="1281.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ecg_project.FXMLDocumentController">
+<AnchorPane id="AnchorPane" onDragDetected="#filterAll" prefHeight="720.0" prefWidth="1281.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ecg_project.FXMLDocumentController">
    <children>
       <MenuBar layoutX="-5.0" prefHeight="29.0" prefWidth="1286.0">
         <menus>
@@ -23,13 +23,9 @@
             <items>
               <MenuItem fx:id="Open" mnemonicParsing="false" onAction="#loadFile" text="Open" />
                   <MenuItem mnemonicParsing="false" onAction="#exit" text="Close" />
+                <MenuItem fx:id="saveMenuItem" disable="true" mnemonicParsing="false" onAction="#write" text="Save" />
             </items>
           </Menu>
-            <Menu mnemonicParsing="false" text="Filter">
-              <items>
-                <MenuItem fx:id="saveMenuItem" disable="true" mnemonicParsing="false" onAction="#write" text="Save" />
-              </items>
-            </Menu>
         </menus>
       </MenuBar>
       <AnchorPane layoutX="1000.0" layoutY="46.0" prefHeight="166.0" prefWidth="162.0">
@@ -92,6 +88,6 @@
       </Pane>
       <Label fx:id="status" layoutX="14.0" layoutY="687.0" text="Status:" />
       <Label fx:id="labelCursorCords" layoutX="67.0" layoutY="625.0" />
-      <Button fx:id="buttonFilterAll" disable="true" layoutX="1038.0" layoutY="254.0" mnemonicParsing="false" onAction="#fillAll" text="Filter all chanel" />
+      <Button fx:id="buttonFilterAll" disable="true" layoutX="1038.0" layoutY="254.0" mnemonicParsing="false" onAction="#filterAll" text="Filter all chanel" />
    </children>
 </AnchorPane>
