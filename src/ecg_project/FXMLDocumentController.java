@@ -255,6 +255,7 @@ public class FXMLDocumentController implements Initializable {
         slider.setValue(100);
         checkBoxHighPass.setSelected(true);
         checkBoxLowPass.setSelected(true);
+        buttonFilterAll.setDisable(true);
     }
 
     public void exit(ActionEvent event) {
@@ -472,6 +473,7 @@ public class FXMLDocumentController implements Initializable {
         buttonFilter.setDisable(true);
         
         status.setText("Status: All chanel filtered");
+        saveMenuItem.setDisable(false);
     }
 
     @Override
