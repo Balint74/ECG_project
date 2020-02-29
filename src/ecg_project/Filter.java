@@ -13,13 +13,13 @@ import org.apache.commons.lang3.ArrayUtils;
  */
 public class Filter {
 
-    double[] aValuesHighPass = {1.0, -3.991983031580645, 5.975981215005254, -3.976013259934955, 0.992015076598585};
-    double[] bValuesHighPass = {0.995999536444965, -3.983998145779859, 5.975997218669789, -3.983998145779859, 0.995999536444965};
+    static double[] aValuesHighPass = {1.0, -3.991983031580645, 5.975981215005254, -3.976013259934955, 0.992015076598585};
+    static double[] bValuesHighPass = {0.995999536444965, -3.983998145779859, 5.975997218669789, -3.983998145779859, 0.995999536444965};
 
-    double[] aValuesLowPass = {1.0, -3.359405101313432, 4.275509077139395, -2.438998657437775, 0.525578974468844};
-    double[] bValuesLowPass = {1.677683035644570e-04, 6.710732142578280e-04, 0.001006609821387, 6.710732142578280e-04, 1.677683035644570e-04};
+    static double[] aValuesLowPass = {1.0, -3.359405101313432, 4.275509077139395, -2.438998657437775, 0.525578974468844};
+    static double[] bValuesLowPass = {1.677683035644570e-04, 6.710732142578280e-04, 0.001006609821387, 6.710732142578280e-04, 1.677683035644570e-04};
 
-    public double[] highPass(double[] array) {
+    public static double[] highPass(double[] array) {
 
         double[] filteredArray = new double[array.length];
 
@@ -32,7 +32,7 @@ public class Filter {
 
     }
 
-    public double[] lowPass(double[] array) {
+    public static double[] lowPass(double[] array) {
 
         double[] filteredArray = new double[array.length];
 
@@ -45,7 +45,7 @@ public class Filter {
 
     }
 
-    double[] filt(double[] array, double[] aValues, double[] bValues, boolean isIthighPass) {
+    public static double[] filt(double[] array, double[] aValues, double[] bValues, boolean isIthighPass) {
 
         double[] filteredArray = new double[array.length];
 
@@ -75,10 +75,3 @@ public class Filter {
         return filteredArray;
     }
 }
-
-/*
-
-         
-
-
- */
